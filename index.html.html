@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เกมรักของเรา 💗</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Leelawadee UI", "Tahoma", sans-serif;
+      color: #633b50;
+      background:
+        radial-gradient(circle at 15% 20%, #fff6c9 0 7%, transparent 7.5%),
+        radial-gradient(circle at 85% 78%, #ffd9e8 0 9%, transparent 9.5%),
+        linear-gradient(135deg, #ffe8f0, #fff2d8);
+    }
+
+    .game {
+      width: min(100%, 520px);
+      padding: 32px;
+      text-align: center;
+      background: #ffffffdc;
+      border: 3px solid white;
+      border-radius: 30px;
+      box-shadow: 0 18px 50px #b46e8b30;
+    }
+
+    h1 { margin: 0 0 8px; font-size: clamp(28px, 7vw, 40px); }
+    .subtitle { margin: 0 0 24px; color: #9b7185; }
+
+    .names {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    input {
+      width: 50%;
+      min-width: 0;
+      padding: 12px;
+      border: 2px solid #f5d5e2;
+      border-radius: 14px;
+      outline: none;
+      font: inherit;
+      text-align: center;
+      color: inherit;
+      background: #fffafd;
+    }
+
+    input:focus { border-color: #ee8fb3; }
+
+    .turn {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 8px 15px;
+      border-radius: 999px;
+      background: #fff0f5;
+      color: #bd5b83;
+      font-weight: bold;
+    }
+
+    .card {
+      min-height: 190px;
+      display: grid;
+      place-items: center;
+      margin: 0 0 18px;
+      padding: 24px;
+      border: 2px dashed #f3b8ce;
+      border-radius: 22px;
+      background: linear-gradient(145deg, #fff8fb, #fff9e9);
+      font-size: clamp(20px, 5vw, 26px);
+      line-height: 1.6;
+    }
+
+    .score {
+      margin: 18px 0;
+      color: #a66b83;
+      font-weight: bold;
+    }
+
+    button {
+      border: 0;
+      border-radius: 15px;
+      padding: 13px 18px;
+      margin: 4px;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform .15s, filter .15s;
+    }
+
+    button:hover { transform: translateY(-2px); filter: brightness(1.03); }
+    button:active { transform: scale(.97); }
+
+    .next { color: white; background: #ec83a8; }
+    .point { color: #80566a; background: #ffe8a8; }
+    .reset { color: #9b7185; background: #f7edf1; }
+
+    .note { margin: 18px 0 0; font-size: 13px; color: #ad8a9a; }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <h1>เกมรักของเรา 💗</h1>
+    <p class="subtitle">ผลัดกันตอบ แล้วมาเช็กว่าเรารู้ใจกันแค่ไหน</p>
+
+    <div class="names">
+      <input id="name1" placeholder="ชื่อคนที่ 1" value="คนเก่ง">
+      <input id="name2" placeholder="ชื่อคนที่ 2" value="ที่รัก">
+    </div>
+
+    <div class="turn" id="turn">ตาของคนเก่ง 💕</div>
+    <div class="card" id="question">กดปุ่มด้านล่างเพื่อสุ่มคำถามเลย!</div>
+
+    <button class="next" onclick="nextQuestion()">สุ่มคำถาม 💌</button>
+    <button class="point" onclick="addPoint()">ตอบแล้ว +1 หัวใจ 💖</button>
+
+    <div class="score" id="score">คะแนนหัวใจ: 0 💗</div>
+    <button class="reset" onclick="resetGame()">เริ่มใหม่ ↻</button>
+
+    <p class="note">กติกาง่าย ๆ: ผลัดกันตอบข้อคำถาม และให้หัวใจเมื่ออยากให้คะแนน</p>
+  </main>
+
+  <script>
+    const questions = [
+      "เดตแรกของเราที่ไหน หรืออยากไปเดตแรกที่ไหนด้วยกัน?",
+      "เมนูอะไรที่อีกคนชอบกินที่สุด?",
+      "ถ้ามีวันว่างด้วยกันทั้งวัน อยากทำอะไร?",
+      "นิสัยอะไรของอีกคนที่ทำให้ยิ้มได้เสมอ?",
+      "เพลงไหนที่ทำให้นึกถึงกัน?",
+      "ถ้าเราไปเที่ยวด้วยกันพรุ่งนี้ อยากไปที่ไหน?",
+      "เรื่องเล็ก ๆ อะไรที่อีกคนทำแล้วรู้สึกได้รับความรัก?",
+      "ถ้าเปรียบอีกคนเป็นขนม จะเป็นขนมอะไร เพราะอะไร?",
+      "ความทรงจำของเราที่ชอบที่สุดคือเรื่องไหน?",
+      "อยากลองทำอะไรใหม่ ๆ ด้วยกันสักครั้ง?",
+      "ถ้าอีกคนเป็นตัวละครในการ์ตูน คิดว่าจะเป็นใคร?",
+      "ขอคำชมให้อีกคนหนึ่งข้อ 💕",
+      "ถ้าตั้งชื่อทีมของเราสองคน จะชื่อว่าอะไร?",
+      "อะไรคือสิ่งที่อยากขอบคุณอีกคนในวันนี้?",
+      "ส่งกอดให้อีกคนหนึ่งที แล้วบอกว่าคิดถึงตรงไหนที่สุด 🥰"
+    ];
+
+    let turn = 0;
+    let hearts = 0;
+    let lastQuestion = -1;
+
+    const nameInput = [
+      document.getElementById("name1"),
+      document.getElementById("name2")
+    ];
+
+    function currentName(index) {
+      return nameInput[index].value.trim() || `คนที่ ${index + 1}`;
+    }
+
+    function updateTurn() {
+      document.getElementById("turn").textContent =
+        `ตาของ${currentName(turn)} 💕`;
+    }
+
+    function nextQuestion() {
+      let index;
+      do {
+        index = Math.floor(Math.random() * questions.length);
+      } while (index === lastQuestion && questions.length > 1);
+
+      lastQuestion = index;
+      document.getElementById("question").textContent = questions[index];
+      turn = 1 - turn;
+      updateTurn();
+    }
+
+    function addPoint() {
+      hearts++;
+      document.getElementById("score").textContent =
+        `คะแนนหัวใจ: ${hearts} 💗`;
+    }
+
+    function resetGame() {
+      hearts = 0;
+      turn = 0;
+      lastQuestion = -1;
+      document.getElementById("score").textContent = "คะแนนหัวใจ: 0 💗";
+      document.getElementById("question").textContent =
+        "กดปุ่มด้านล่างเพื่อสุ่มคำถามเลย!";
+      updateTurn();
+    }
+
+    nameInput.forEach(input => input.addEventListener("input", updateTurn));
+    updateTurn();
+  </script>
+</body>
+</html>
